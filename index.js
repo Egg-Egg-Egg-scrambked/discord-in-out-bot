@@ -7,20 +7,32 @@ const client = new Client({
   ]
 });
 
+// あなたのユーザーID
 const OWNER_ID = '545988407118135296';
 
-client.once('ready', () => {
+client.once('clientReady', () => {
   console.log(`ログイン: ${client.user.tag}`);
 });
 
+// 入室通知
 client.on('guildMemberAdd', async (member) => {
-  const user = await client.users.fetch(OWNER_ID);
-  user.send(`📥 ${member.user.tag} が参加しました`);
+  try {
+    const user = await client.users.fetch(OWNER_ID);
+    await user.send(`📥 ${member.user.tag} がサーバーに参加しました`);
+  } catch (err) {
+    console.error('DM送信エラー:', err);
+  }
 });
 
+// 退出通知
 client.on('guildMemberRemove', async (member) => {
-  const user = await client.users.fetch(OWNER_ID);
-  user.send(`📤 ${member.user.tag} が退出しました`);
+  try {
+    const user = await client.users.fetch(OWNER_ID);
+    await user.send(`📤 ${member.user.tag} がサーバーから退出しました`);
+  } catch (err) {
+    console.error('DM送信エラー:', err);
+  }
 });
 
-client.login('MTUzMjQyNzE3OTU3NTc0MjczNg.Gj2o8k.uFVTA2KVNitxhH22sL0zmsLZw0h6cEkeZagHEA');
+// 🔴 ここが重要（直書き禁止）
+client.login(process.env.TOKEN);
