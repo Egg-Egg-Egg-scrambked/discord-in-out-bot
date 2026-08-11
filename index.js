@@ -1,7 +1,7 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import express from 'express';
 
-// Webサーバー（Render用）
+// （Render用）
 const app = express();
 app.get('/', (req, res) => {
   res.send('Bot is running');
@@ -11,7 +11,6 @@ app.listen(PORT, () => {
   console.log(`Web server running on port ${PORT}`);
 });
 
-// Bot本体
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -20,8 +19,8 @@ const client = new Client({
   ]
 });
 
-// 🔴 自分のユーザーID入れる
-const OWNER_ID = 'ここに自分のID';
+// 🔴 自分のユーザーID
+const OWNER_ID = '545988407118135296';
 
 client.once('clientReady', () => {
   console.log(`ログイン: ${client.user.tag}`);
@@ -83,5 +82,5 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
   }
 });
 
-// 🔑 TOKEN（直書き禁止）
+// TOKEN
 client.login(process.env.TOKEN);
