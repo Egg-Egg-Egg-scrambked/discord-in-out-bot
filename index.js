@@ -32,7 +32,7 @@ client.once('clientReady', () => {
 client.on('guildMemberAdd', async (member) => {
   try {
     const user = await client.users.fetch(OWNER_ID);
-    await user.send(`📥 ${member.user.tag} がサーバーに参加しました`);
+    await user.send(`📥 ${member.displayName} がサーバーに参加しました`);
   } catch (err) {
     console.error('入室通知エラー:', err);
   }
@@ -42,7 +42,7 @@ client.on('guildMemberAdd', async (member) => {
 client.on('guildMemberRemove', async (member) => {
   try {
     const user = await client.users.fetch(OWNER_ID);
-    await user.send(`📤 ${member.user.tag} がサーバーから退出しました`);
+    await user.send(`📤 ${member.displayName} がサーバーから退出しました`);
   } catch (err) {
     console.error('退出通知エラー:', err);
   }
@@ -57,13 +57,13 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     // 入室
     if (!oldState.channelId && newState.channelId) {
       const channelName = newState.channel?.name ?? '不明なチャンネル';
-      await user.send(`🎤 ${newState.member.user.tag} が「${channelName}」に参加しました`);
+      await user.send(`🎤 ${newState.member.displayName} が「${channelName}」に参加しました`);
     }
 
     // 退出
     if (oldState.channelId && !newState.channelId) {
       const channelName = oldState.channel?.name ?? '不明なチャンネル';
-      await user.send(`🔇 ${oldState.member.user.tag} が「${channelName}」から退出しました`);
+      await user.send(`🔇 ${oldState.member.displayName} が「${channelName}」から退出しました`);
     }
 
     // 移動
@@ -74,7 +74,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     ) {
       const oldName = oldState.channel?.name ?? '不明';
       const newName = newState.channel?.name ?? '不明';
-      await user.send(`🔁 ${newState.member.user.tag} が「${oldName}」→「${newName}」に移動しました`);
+      await user.send(`🔁 ${newState.member.displayName} が「${oldName}」→「${newName}」に移動しました`);
     }
 
   } catch (err) {
