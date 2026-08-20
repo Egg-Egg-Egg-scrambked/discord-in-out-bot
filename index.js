@@ -150,14 +150,35 @@ client.on('interactionCreate', async (interaction) => {
     const [citizenWord, wolfWord] =
       words[Math.floor(Math.random() * words.length)];
 
-    const wolfIndex = Math.floor(Math.random() * members.length);
+    // 👇 人狼人数決定
+    let wolfCount = 1;
 
+    if (members.length >= 6 && members.length <= 9) {
+      wolfCount = 2;
+    } else if (members.length >= 10) {
+      wolfCount = 3;
+    }
+
+    // 👇 人狼選出
+    const wolfIndexes = [];
+
+    while (wolfIndexes.length < wolfCount) {
+      const r = Math.floor(Math.random() * members.length);
+      if (!wolfIndexes.includes(r)) {
+        wolfIndexes.push(r);
+      }
+    }
+
+    // 👇 配布
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
-      const word = i === wolfIndex ? wolfWord : citizenWord;
+      const isWolf = wolfIndexes.includes(i);
+      const word = isWolf ? wolfWord : citizenWord;
 
       try {
-        await m.send(`🐺 あなたのワード: ${word}`);
+        await m.send(
+          `🐺 ワードウルフ\nあなたのワード: ${word}\n${isWolf ? '👉 あなたは人狼です' : ''}`
+        );
       } catch {
         console.log(`${m.displayName} DM不可`);
       }
