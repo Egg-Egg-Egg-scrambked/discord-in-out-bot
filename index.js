@@ -38,12 +38,20 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
 
 // =========================
+// セッション保存
+// =========================
+const gameSessions = new Map();
+
+// =========================
 // スラッシュコマンド登録
 // =========================
 const commands = [
   new SlashCommandBuilder()
     .setName('wolf')
-    .setDescription('VC内でワードウルフを開始')
+    .setDescription('VC内でワードウルフを開始'),
+  new SlashCommandBuilder()
+    .setName('answer')
+    .setDescription('人狼を発表する')
 ];
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);
@@ -75,18 +83,14 @@ client.on('guildMemberAdd', async (member) => {
   try {
     const user = await client.users.fetch(OWNER_ID);
     await user.send(`📥 ${member.displayName} がサーバーに参加しました`);
-  } catch (err) {
-    console.error(err);
-  }
+  } catch {}
 });
 
 client.on('guildMemberRemove', async (member) => {
   try {
     const user = await client.users.fetch(OWNER_ID);
     await user.send(`📤 ${member.displayName} がサーバーから退出しました`);
-  } catch (err) {
-    console.error(err);
-  }
+  } catch {}
 });
 
 // =========================
@@ -104,25 +108,22 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
       await user.send(`🔇 ${oldState.member.displayName} が「${oldState.channel?.name}」から退出しました`);
     }
 
-    if (
-      oldState.channelId &&
-      newState.channelId &&
-      oldState.channelId !== newState.channelId
-    ) {
+    if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
       await user.send(`🔁 ${newState.member.displayName} が「${oldState.channel?.name}」→「${newState.channel?.name}」に移動しました`);
     }
 
-  } catch (err) {
-    console.error(err);
-  }
+  } catch {}
 });
 
 // =========================
-// ワードウルフ
+// コマンド処理
 // =========================
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
+  // =========================
+  // ワードウルフ開始
+  // =========================
   if (interaction.commandName === 'wolf') {
 
     const member = interaction.member;
@@ -140,45 +141,91 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: '3人以上必要！', ephemeral: true });
     }
 
-    const words = [
-      ['りんご', 'みかん'],
-      ['犬', '猫'],
-      ['海', 'プール'],
-      ['カレー', 'シチュー']
-    ];
+const words = [
+  ['りんご', 'みかん'],
+  ['犬', '猫'],
+  ['海', 'プール'],
+  ['カレー', 'シチュー'],
+
+  ['コーヒー', '紅茶'],
+  ['スマホ', 'タブレット'],
+  ['電車', 'バス'],
+  ['映画', 'ドラマ'],
+  ['パン', 'ごはん'],
+  ['ラーメン', 'うどん'],
+  ['焼肉', 'ステーキ'],
+  ['寿司', '刺身'],
+  ['ゲーム', 'アニメ'],
+  ['野球', 'サッカー'],
+  ['夏', '冬'],
+  ['朝', '夜'],
+  ['山', '川'],
+  ['東京', '大阪'],
+  ['学校', '会社'],
+  ['先生', '生徒'],
+  ['警察', '消防士'],
+  ['車', 'バイク'],
+  ['自転車', 'キックボード'],
+  ['テレビ', 'YouTube'],
+  ['LINE', 'Discord'],
+  ['財布', 'カバン'],
+  ['雨', '雪'],
+  ['太陽', '月'],
+  ['砂漠', 'ジャングル'],
+  ['コンビニ', 'スーパー'],
+  ['デパート', 'ショッピングモール'],
+  ['ピザ', 'ハンバーガー'],
+  ['ケーキ', 'アイス'],
+  ['水', 'お茶'],
+  ['ビール', 'ワイン'],
+  ['ボールペン', 'シャーペン'],
+  ['ノート', '教科書'],
+  ['剣', '銃'],
+  ['魔法', '科学'],
+  ['忍者', '侍'],
+  ['ドラゴン', '恐竜'],
+  ['天使', '悪魔'],
+  ['幽霊', 'ゾンビ'],
+  ['ヒーロー', 'ヴィラン'],
+  ['猫カフェ', 'ドッグカフェ'],
+  ['温泉', 'サウナ'],
+  ['旅行', '出張'],
+  ['ホテル', '旅館'],
+  ['空港', '駅'],
+  ['飛行機', '新幹線']
+];
 
     const [citizenWord, wolfWord] =
       words[Math.floor(Math.random() * words.length)];
 
-    // 👇 人狼人数決定
+    // 人狼人数
     let wolfCount = 1;
+    if (members.length >= 6 && members.length <= 9) wolfCount = 2;
+    else if (members.length >= 10) wolfCount = 3;
 
-    if (members.length >= 6 && members.length <= 9) {
-      wolfCount = 2;
-    } else if (members.length >= 10) {
-      wolfCount = 3;
-    }
-
-    // 👇 人狼選出
+    // 人狼選出
     const wolfIndexes = [];
-
     while (wolfIndexes.length < wolfCount) {
       const r = Math.floor(Math.random() * members.length);
-      if (!wolfIndexes.includes(r)) {
-        wolfIndexes.push(r);
-      }
+      if (!wolfIndexes.includes(r)) wolfIndexes.push(r);
     }
 
-    // 👇 配布
+    // 保存（これが超重要）
+    const guildId = interaction.guild.id;
+    gameSessions.set(guildId, {
+      wolfIds: wolfIndexes.map(i => members[i].id)
+    });
+
+    // 配布
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
       const isWolf = wolfIndexes.includes(i);
       const word = isWolf ? wolfWord : citizenWord;
 
       try {
-        await m.send(
-          `🐺 ワードウルフ\nあなたのワード: ${word}\n${isWolf ? '👉 あなたは人狼です' : ''}`
-        );
+      await m.send(
+        `🐺 ワードウルフ\nあなたのワード: ${word}`
+      );
       } catch {
         console.log(`${m.displayName} DM不可`);
       }
@@ -188,6 +235,40 @@ client.on('interactionCreate', async (interaction) => {
       content: '配布完了！DM見てね',
       ephemeral: true
     });
+  }
+
+  // =========================
+  // 答え発表
+  // =========================
+  if (interaction.commandName === 'answer') {
+
+    const guildId = interaction.guild.id;
+    const session = gameSessions.get(guildId);
+
+    if (!session) {
+      return interaction.reply({
+        content: 'まだゲームやってないよ',
+        ephemeral: true
+      });
+    }
+
+    const names = await Promise.all(
+      session.wolfIds.map(async (id) => {
+        try {
+          const m = await interaction.guild.members.fetch(id);
+          return m.displayName;
+        } catch {
+          return '不明';
+        }
+      })
+    );
+
+    await interaction.reply({
+      content: `🐺 人狼は...\n👉 ${names.join('、')} でした！`
+    });
+
+    // リセット
+    gameSessions.delete(guildId);
   }
 });
 
