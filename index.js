@@ -125,7 +125,7 @@ client.on('interactionCreate', async (interaction) => {
   // ワードウルフ開始
   // =========================
   if (interaction.commandName === 'wolf') {
-
+　await interaction.deferReply({ ephemeral: true });
     const member = interaction.member;
     const voiceChannel = member.voice.channel;
 
