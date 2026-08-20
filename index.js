@@ -231,10 +231,9 @@ const words = [
       }
     }
 
-    await interaction.reply({
-      content: '配布完了！DM見てね',
-      ephemeral: true
-    });
+await interaction.editReply({
+  content: '配布完了！DM見てね'
+});
   }
 
   // =========================
@@ -263,9 +262,9 @@ const words = [
       })
     );
 
-    await interaction.reply({
-      content: `🐺 人狼は...\n👉 ${names.join('、')} でした！`
-    });
+await interaction.editReply({
+  content: `🐺 人狼は...\n👉 ${names.join('、')} でした！`
+});
 
     // リセット
     gameSessions.delete(guildId);
