@@ -125,7 +125,7 @@ client.on('interactionCreate', async (interaction) => {
   // ワードウルフ開始
   // =========================
   if (interaction.commandName === 'wolf') {
-　await interaction.deferReply({ ephemeral: true });
+　await interaction.deferReply();
     const member = interaction.member;
     const voiceChannel = member.voice.channel;
 
@@ -240,7 +240,7 @@ await interaction.editReply({
   // 答え発表
   // =========================
   if (interaction.commandName === 'answer') {
-
+　　await interaction.deferReply();
     const guildId = interaction.guild.id;
     const session = gameSessions.get(guildId);
 
