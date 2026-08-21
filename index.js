@@ -146,7 +146,6 @@ client.on('interactionCreate', async (interaction) => {
 10人以上　ウルフ3人
 
 楽しんでね 😎`,
-    ephemeral: true
   });
 
 }
