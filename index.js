@@ -47,6 +47,9 @@ const gameSessions = new Map();
 // =========================
 const commands = [
   new SlashCommandBuilder()
+  .setName('rules')
+  .setDescription('ワードウルフのルールを表示')
+  new SlashCommandBuilder()
     .setName('wolf')
     .setDescription('VC内でワードウルフを開始'),
   new SlashCommandBuilder()
@@ -124,6 +127,29 @@ client.on('interactionCreate', async (interaction) => {
   // =========================
   // ワードウルフ開始
   // =========================
+  if (interaction.commandName === 'rules') {
+
+  await interaction.reply({
+    content:
+`🐺 ワードウルフのルール
+
+・全員にこのBOTから「お題」が配られます
+・ただし数人だけ違うお題（人狼）です
+・会話しながら、自分のお題を直接言わずにヒントを出します
+・最終的に「誰が違うお題か」を当てます
+・市民がウルフを当てることができた場合
+　ウルフは市民のワードを言い当てれば逆転勝利
+
+人狼の人数は参加人数によって変わるよ！
+3人－5人　ウルフ1人
+6人－9人　ウルフ2人
+10人以上　ウルフ3人
+
+楽しんでね 😎`,
+    ephemeral: true
+  });
+
+}
   if (interaction.commandName === 'wolf') {
 　await interaction.deferReply();
     const member = interaction.member;
