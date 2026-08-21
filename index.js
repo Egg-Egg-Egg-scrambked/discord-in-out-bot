@@ -48,7 +48,7 @@ const gameSessions = new Map();
 const commands = [
   new SlashCommandBuilder()
   .setName('rules')
-  .setDescription('ワードウルフのルールを表示')
+  .setDescription('ワードウルフのルールを表示'),
   new SlashCommandBuilder()
     .setName('wolf')
     .setDescription('VC内でワードウルフを開始'),
