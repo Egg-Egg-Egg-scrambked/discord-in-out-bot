@@ -133,9 +133,16 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: 'VC入ってね', ephemeral: true });
     }
 
-    const members = voiceChannel.members
-      .filter(m => !m.user.bot)
-      .map(m => m);
+  const IGNORE_IDS = [
+    '917633605684056085'
+  ];
+  
+  const members = voiceChannel.members
+    .filter(m => 
+      !m.user.bot &&
+      !IGNORE_IDS.includes(m.id)
+    )
+    .map(m => m);
 
     if (members.length < 3) {
       return interaction.reply({ content: '3人以上必要！', ephemeral: true });
