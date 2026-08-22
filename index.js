@@ -101,21 +101,29 @@ client.on('guildMemberRemove', async (member) => {
 // =========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
   try {
+    console.log('VCイベント発火'); // ←これ追加（確認用）
+
     const user = await client.users.fetch(OWNER_ID);
 
     if (!oldState.channelId && newState.channelId) {
-      await user.send(`🎤 ${newState.member.displayName} が「${newState.channel?.name}」に参加しました`);
+      await user.send(`🎤 ${newState.member?.displayName} が「${newState.channel?.name}」に参加しました`);
     }
 
     if (oldState.channelId && !newState.channelId) {
-      await user.send(`🔇 ${oldState.member.displayName} が「${oldState.channel?.name}」から退出しました`);
+      await user.send(`🔇 ${oldState.member?.displayName} が「${oldState.channel?.name}」から退出しました`);
     }
 
-    if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
-      await user.send(`🔁 ${newState.member.displayName} が「${oldState.channel?.name}」→「${newState.channel?.name}」に移動しました`);
+    if (
+      oldState.channelId &&
+      newState.channelId &&
+      oldState.channelId !== newState.channelId
+    ) {
+      await user.send(`🔁 ${newState.member?.displayName} が「${oldState.channel?.name}」→「${newState.channel?.name}」に移動しました`);
     }
 
-  } catch {}
+  } catch (err) {
+    console.error('VC通知エラー:', err);
+  }
 });
 
 // =========================
