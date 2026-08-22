@@ -18,7 +18,6 @@ const client = new Client({
     GatewayIntentBits.GuildVoiceStates
   ]
 });
-
 // 🔴 自分のユーザーID
 const OWNER_ID = '545988407118135296';
 
