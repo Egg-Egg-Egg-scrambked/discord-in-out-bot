@@ -15,7 +15,9 @@ const client = new Client({
 });
 
 console.log('② client作成');
-
+client.on('error', console.error);
+client.on('shardError', console.error);
+client.on('debug', console.log);
 // =========================
 // ログイン
 // =========================
