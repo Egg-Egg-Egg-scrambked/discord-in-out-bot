@@ -63,6 +63,36 @@ client.once('clientReady', () => {
 });
 
 // =========================
+// VC通知
+// =========================
+client.on('voiceStateUpdate', async (oldState, newState) => {
+  try {
+    console.log('VCイベント発火');
+
+    const user = await client.users.fetch(OWNER_ID);
+
+    if (!oldState.channelId && newState.channelId) {
+      await user.send(`🎤 ${newState.member?.displayName} が「${newState.channel?.name}」に参加しました`);
+    }
+
+    if (oldState.channelId && !newState.channelId) {
+      await user.send(`🔇 ${oldState.member?.displayName} が「${oldState.channel?.name}」から退出しました`);
+    }
+
+    if (
+      oldState.channelId &&
+      newState.channelId &&
+      oldState.channelId !== newState.channelId
+    ) {
+      await user.send(`🔁 ${newState.member?.displayName} が「${oldState.channel?.name}」→「${newState.channel?.name}」に移動しました`);
+    }
+
+  } catch (err) {
+    console.error('VC通知エラー:', err);
+  }
+});
+
+// =========================
 // 投票開始
 // =========================
 async function startVote(interaction, guildId) {
@@ -162,10 +192,26 @@ async function startVote(interaction, guildId) {
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  // ===== ルール =====
-  if (interaction.commandName === 'rules') {
-    return interaction.reply('ルールは省略');
+if (interaction.commandName === 'rules') {
+    await interaction.reply({
+      content:
+`🐺 ワードウルフのルール
+
+・全員にこのBOTから「お題」が配られます
+・ただし数人だけ違うお題（人狼）です
+・会話しながら、自分のお題を直接言わずにヒントを出します
+・最終的に「誰が違うお題か」を当てます
+・市民がウルフを当てた場合、ウルフはお題を当てれば逆転勝利
+
+人数ごとの人狼数
+3〜5人：1人
+6〜9人：2人
+10人以上：3人
+
+楽しんでね 😎`
+    });
   }
+
 
   // ===== 開始 =====
   if (interaction.commandName === 'wolf') {
