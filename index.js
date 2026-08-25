@@ -284,7 +284,7 @@ const words = [
 
       try {
       await m.send(
-        🐺 ワードウルフ\nあなたのワード: ${word}
+        '🐺 ワードウルフ\nあなたのワード: ${word}'
       );
       } catch {
         console.log(`${m.displayName} DM不可`);
