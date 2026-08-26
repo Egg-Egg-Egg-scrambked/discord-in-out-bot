@@ -63,6 +63,27 @@ client.once('clientReady', () => {
 });
 
 // =========================
+// 入退室通知
+// =========================
+client.on('guildMemberAdd', async (member) => {
+  try {
+    const user = await client.users.fetch(OWNER_ID);
+    await user.send(`📥 ${member.displayName} がサーバーに参加しました`);
+  } catch (err) {
+    console.error('入室通知エラー:', err);
+  }
+});
+
+client.on('guildMemberRemove', async (member) => {
+  try {
+    const user = await client.users.fetch(OWNER_ID);
+    await user.send(`📤 ${member.displayName} がサーバーから退出しました`);
+  } catch (err) {
+    console.error('退出通知エラー:', err);
+  }
+});
+
+// =========================
 // VC通知
 // =========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
