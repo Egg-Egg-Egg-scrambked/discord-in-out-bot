@@ -2,12 +2,12 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import express from 'express';
 
 // =========================
-// Webサーバー（Render対策）
+// Webサーバー（Render用）
 // =========================
 const app = express();
 
 app.get('/', (req, res) => {
-  res.send('Bot is running');
+  res.send('OK');
 });
 
 app.listen(process.env.PORT || 3000, () => {
@@ -15,77 +15,58 @@ app.listen(process.env.PORT || 3000, () => {
 });
 
 // =========================
-// Bot作成
+// Bot
 // =========================
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildVoiceStates
   ]
 });
 
-const OWNER_ID = '545988407118135296';
+const CHANNEL_ID = 'ここに通知したいチャンネルID'; // ← 自分で入れる
 
 // =========================
-// 起動確認
+// 起動ログ
 // =========================
-client.once('clientReady', async () => {
+client.once('clientReady', () => {
   console.log(`✅ ログイン: ${client.user.tag}`);
-
-  try {
-    const user = await client.users.fetch(OWNER_ID);
-    await user.send('テストDM');
-    console.log('✅ DM送信成功');
-  } catch (e) {
-    console.log('❌ DM送信失敗', e);
-  }
 });
 
 // =========================
-// VC入退室通知
+// VC入退室通知（チャンネル送信版）
 // =========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
   try {
     console.log('[VC]', oldState.channelId, '→', newState.channelId);
 
-    // 同じチャンネル（ミュート変更など）は無視
     if (oldState.channelId === newState.channelId) return;
 
-    // メンバー取得（undefined対策）
     const member = newState.member || oldState.member;
     const name = member?.displayName || '不明';
 
-    // チャンネル名
     const oldChannel = oldState.channel?.name || '不明';
     const newChannel = newState.channel?.name || '不明';
 
-    // 通知先ユーザー取得
-    const user =
-      client.users.cache.get(OWNER_ID) ||
-      await client.users.fetch(OWNER_ID);
-
-    if (!user) {
-      console.log('❌ OWNER取得失敗');
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    if (!channel) {
+      console.log('❌ チャンネル取得失敗');
       return;
     }
 
-    // ===== 入室 =====
+    // 入室
     if (!oldState.channelId && newState.channelId) {
-      console.log('入室イベント');
-      await user.send(`🎤 ${name} が「${newChannel}」に参加しました`);
+      await channel.send(`🎤 ${name} が「${newChannel}」に参加しました`);
     }
 
-    // ===== 退出 =====
+    // 退出
     else if (oldState.channelId && !newState.channelId) {
-      console.log('退出イベント');
-      await user.send(`🔇 ${name} が「${oldChannel}」から退出しました`);
+      await channel.send(`🔇 ${name} が「${oldChannel}」から退出しました`);
     }
 
-    // ===== 移動 =====
+    // 移動
     else {
-      console.log('移動イベント');
-      await user.send(`🔁 ${name} が「${oldChannel}」→「${newChannel}」に移動しました`);
+      await channel.send(`🔁 ${name} が「${oldChannel}」→「${newChannel}」に移動しました`);
     }
 
   } catch (err) {
@@ -94,11 +75,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 });
 
 // =========================
-// ログイン
+// ログイン（絶対最後）
 // =========================
 console.log('TOKEN存在:', !!process.env.TOKEN);
-console.log('TOKEN長さ:', process.env.TOKEN?.length);
 
 client.login(process.env.TOKEN)
-  .then(() => console.log('✅ ログイン処理成功'))
+  .then(() => console.log('✅ login()通過'))
   .catch(err => console.error('❌ ログイン失敗', err));
