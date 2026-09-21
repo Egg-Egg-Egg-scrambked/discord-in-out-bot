@@ -96,4 +96,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 // =========================
 // ログイン
 // =========================
-client.login(process.env.TOKEN);
+console.log('TOKEN存在:', !!process.env.TOKEN);
+console.log('TOKEN長さ:', process.env.TOKEN?.length);
+
+client.login(process.env.TOKEN)
+  .then(() => console.log('✅ ログイン処理成功'))
+  .catch(err => console.error('❌ ログイン失敗', err));
