@@ -30,8 +30,16 @@ const OWNER_ID = '545988407118135296';
 // =========================
 // 起動確認
 // =========================
-client.once('clientReady', () => {
+client.once('clientReady', async () => {
   console.log(`✅ ログイン: ${client.user.tag}`);
+
+  try {
+    const user = await client.users.fetch(OWNER_ID);
+    await user.send('テストDM');
+    console.log('✅ DM送信成功');
+  } catch (e) {
+    console.log('❌ DM送信失敗', e);
+  }
 });
 
 // =========================
